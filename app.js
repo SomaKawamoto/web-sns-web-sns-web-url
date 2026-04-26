@@ -142,6 +142,10 @@ const els = {
   visibleCount: document.querySelector("#visibleCount"),
   clearAllButton: document.querySelector("#clearAllButton"),
   demoButton: document.querySelector("#demoButton"),
+  openShareButton: document.querySelector("#openShareButton"),
+  closeShareButton: document.querySelector("#closeShareButton"),
+  shareModal: document.querySelector("#shareModal"),
+  sharePanel: document.querySelector("#sharePanel"),
   generateButton: document.querySelector("#generateButton"),
   downloadButton: document.querySelector("#downloadButton"),
   shareButton: document.querySelector("#shareButton"),
@@ -591,6 +595,21 @@ async function shareCanvas() {
   }
 }
 
+function openSharePanel() {
+  els.shareModal.hidden = false;
+  document.body.classList.add("modal-open");
+  drawShareImage();
+  requestAnimationFrame(() => {
+    els.sharePanel.focus({ preventScroll: true });
+  });
+}
+
+function closeSharePanel() {
+  els.shareModal.hidden = true;
+  document.body.classList.remove("modal-open");
+  els.openShareButton.focus({ preventScroll: true });
+}
+
 els.searchInput.addEventListener("input", (event) => {
   state.query = event.target.value;
   renderList();
@@ -623,6 +642,18 @@ els.demoButton.addEventListener("click", () => {
   render();
 });
 
+els.openShareButton.addEventListener("click", openSharePanel);
+els.closeShareButton.addEventListener("click", closeSharePanel);
+els.shareModal.addEventListener("click", (event) => {
+  if (event.target === els.shareModal) {
+    closeSharePanel();
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !els.shareModal.hidden) {
+    closeSharePanel();
+  }
+});
 els.generateButton.addEventListener("click", drawShareImage);
 els.downloadButton.addEventListener("click", downloadCanvas);
 els.shareButton.addEventListener("click", () => {

@@ -33,6 +33,10 @@ body {
     var(--paper);
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 button,
 input,
 select {
@@ -59,6 +63,12 @@ button {
 
 .site-header > .brand-lockup {
   display: flex;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .brand-lockup,
@@ -142,7 +152,7 @@ h2 {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(320px, 0.88fr) minmax(360px, 1.04fr) minmax(360px, 0.92fr);
+  grid-template-columns: minmax(320px, 0.88fr) minmax(360px, 1.04fr);
   gap: 18px;
   align-items: start;
 }
@@ -167,8 +177,9 @@ h2 {
 }
 
 .share-panel {
-  position: sticky;
-  top: 16px;
+  width: min(520px, calc(100vw - 28px));
+  max-height: calc(100vh - 28px);
+  overflow: auto;
 }
 
 .progress-head,
@@ -199,6 +210,41 @@ h2 {
   background: var(--forest-dark);
   color: #fffaf0;
   font-weight: 900;
+}
+
+.share-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  background: rgba(31, 41, 35, 0.58);
+}
+
+.share-modal[hidden] {
+  display: none;
+}
+
+.share-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fffaf0;
+  color: var(--forest-dark);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .rate-ring {
@@ -484,6 +530,10 @@ select:focus {
   color: #fffaf0;
 }
 
+.header-share-button {
+  min-width: 88px;
+}
+
 .secondary-button {
   border: 1px solid var(--line);
   background: #fffdf7;
@@ -507,12 +557,6 @@ select:focus {
     grid-column: 1;
     position: static;
   }
-
-  .share-panel {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    position: static;
-  }
 }
 
 @media (max-width: 760px) {
@@ -522,6 +566,11 @@ select:focus {
 
   .site-header {
     align-items: flex-start;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .brand-lockup {
@@ -541,14 +590,6 @@ select:focus {
 
   .layout {
     grid-template-columns: 1fr;
-  }
-
-  .share-panel {
-    position: static;
-  }
-
-  .share-panel {
-    order: 3;
   }
 
   .mountain-list {
