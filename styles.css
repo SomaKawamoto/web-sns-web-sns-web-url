@@ -56,19 +56,12 @@ button {
 .site-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
   padding: 10px 0 22px;
 }
 
 .site-header > .brand-lockup {
   display: flex;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .brand-lockup,
@@ -143,7 +136,7 @@ h2 {
 }
 
 h1 {
-  font-size: clamp(28px, 4vw, 48px);
+  font-size: clamp(26px, 3.6vw, 44px);
 }
 
 h2 {
@@ -530,8 +523,17 @@ select:focus {
   color: #fffaf0;
 }
 
-.header-share-button {
-  min-width: 88px;
+.map-share-button {
+  display: block;
+  width: min(210px, 100%);
+  min-height: 38px;
+  margin: 12px auto 0;
+  border: 1px solid rgba(217, 77, 43, 0.34);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.88);
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .secondary-button {
@@ -569,11 +571,6 @@ select:focus {
     align-items: flex-start;
   }
 
-  .header-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .brand-lockup {
     align-items: flex-start;
     gap: 10px;
@@ -583,6 +580,10 @@ select:focus {
     width: 46px;
     height: 46px;
     margin-top: 2px;
+  }
+
+  h1 {
+    font-size: clamp(23px, 6.4vw, 30px);
   }
 
   .summit-badge {
