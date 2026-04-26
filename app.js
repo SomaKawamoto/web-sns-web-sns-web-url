@@ -501,11 +501,14 @@ function drawShareImage() {
 
   ctx.fillStyle = "#d94d2b";
   ctx.font = "900 182px system-ui, sans-serif";
-  ctx.fillText(String(count).padStart(2, "0"), 106, 462);
+  const countText = String(count).padStart(2, "0");
+  const countX = 106;
+  const countWidth = ctx.measureText(countText).width;
+  ctx.fillText(countText, countX, 462);
 
   ctx.font = "900 86px system-ui, sans-serif";
   ctx.fillStyle = "#f3ecdc";
-  ctx.fillText("/ 100", 316, 445);
+  ctx.fillText("/ 100", countX + countWidth + 24, 445);
 
   ctx.fillStyle = "#d94d2b";
   roundedRect(ctx, 112, 494, 266, 62, 7);
