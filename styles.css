@@ -188,6 +188,10 @@ h2 {
   font-weight: 900;
 }
 
+.progress-head h2 span:first-child {
+  color: var(--accent);
+}
+
 .progress-head h2 span:last-child {
   color: var(--muted);
   font-size: 0.42em;
