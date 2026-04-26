@@ -141,6 +141,10 @@ const els = {
   areaFilter: document.querySelector("#areaFilter"),
   visibleCount: document.querySelector("#visibleCount"),
   listClearButton: document.querySelector("#listClearButton"),
+  menuButton: document.querySelector("#menuButton"),
+  headerMenu: document.querySelector("#headerMenu"),
+  menuShareButton: document.querySelector("#menuShareButton"),
+  menuClearButton: document.querySelector("#menuClearButton"),
   openShareButton: document.querySelector("#openShareButton"),
   closeShareButton: document.querySelector("#closeShareButton"),
   shareModal: document.querySelector("#shareModal"),
@@ -612,6 +616,18 @@ function closeSharePanel() {
   els.openShareButton.focus({ preventScroll: true });
 }
 
+function setHeaderMenuOpen(open) {
+  els.headerMenu.hidden = !open;
+  els.menuButton.setAttribute("aria-expanded", String(open));
+}
+
+function clearClimbed() {
+  state.climbed.clear();
+  state.selectedId = null;
+  persist();
+  render();
+}
+
 els.searchInput.addEventListener("input", (event) => {
   state.query = event.target.value;
   renderList();
@@ -630,11 +646,20 @@ document.querySelectorAll(".segment").forEach((button) => {
   });
 });
 
-els.listClearButton.addEventListener("click", () => {
-  state.climbed.clear();
-  state.selectedId = null;
-  persist();
-  render();
+els.listClearButton.addEventListener("click", clearClimbed);
+
+els.menuButton.addEventListener("click", () => {
+  setHeaderMenuOpen(els.headerMenu.hidden);
+});
+
+els.menuShareButton.addEventListener("click", () => {
+  setHeaderMenuOpen(false);
+  openSharePanel();
+});
+
+els.menuClearButton.addEventListener("click", () => {
+  setHeaderMenuOpen(false);
+  clearClimbed();
 });
 
 els.openShareButton.addEventListener("click", openSharePanel);
@@ -645,8 +670,18 @@ els.shareModal.addEventListener("click", (event) => {
   }
 });
 document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !els.headerMenu.hidden) {
+    setHeaderMenuOpen(false);
+    els.menuButton.focus({ preventScroll: true });
+  }
   if (event.key === "Escape" && !els.shareModal.hidden) {
     closeSharePanel();
+  }
+});
+
+document.addEventListener("click", (event) => {
+  if (!els.headerMenu.hidden && !event.target.closest(".header-menu")) {
+    setHeaderMenuOpen(false);
   }
 });
 els.generateButton.addEventListener("click", drawShareImage);

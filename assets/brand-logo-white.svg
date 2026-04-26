@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="日本百名山チェック ロゴ">
+  <path fill="#fff" d="M22 96 57 29l16 30 26-43 39 80h-16L98 47 73 91 58 60 38 96H22Z"/>
+  <path fill="#fff" opacity=".72" d="M46 84 70 60l12 16 16-23 31 43h-17L99 77 83 100 68 78 54 96H41l5-12Z"/>
+  <path fill="#0b3424" opacity=".95" d="M57 29 52 62l13-16 8 13 26-43 2 34 11-13 15 30-22-19-7 24-5-32-20 35-8-14-18 22 10-54Z"/>
+  <path fill="#fff" d="M18 103h124v8H18z"/>
+</svg>
