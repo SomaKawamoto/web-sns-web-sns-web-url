@@ -592,6 +592,10 @@ select:focus {
     grid-template-columns: 1fr;
   }
 
+  .progress-panel {
+    position: static;
+  }
+
   .mountain-list {
     max-height: none;
     min-height: 0;
