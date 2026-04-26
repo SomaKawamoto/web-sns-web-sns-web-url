@@ -140,8 +140,7 @@ const els = {
   searchInput: document.querySelector("#searchInput"),
   areaFilter: document.querySelector("#areaFilter"),
   visibleCount: document.querySelector("#visibleCount"),
-  clearAllButton: document.querySelector("#clearAllButton"),
-  demoButton: document.querySelector("#demoButton"),
+  listClearButton: document.querySelector("#listClearButton"),
   openShareButton: document.querySelector("#openShareButton"),
   closeShareButton: document.querySelector("#closeShareButton"),
   shareModal: document.querySelector("#shareModal"),
@@ -631,16 +630,9 @@ document.querySelectorAll(".segment").forEach((button) => {
   });
 });
 
-els.clearAllButton.addEventListener("click", () => {
+els.listClearButton.addEventListener("click", () => {
   state.climbed.clear();
   state.selectedId = null;
-  persist();
-  render();
-});
-
-els.demoButton.addEventListener("click", () => {
-  state.climbed = new Set(mountains.slice(0, 37).map((mountain) => mountain.id));
-  state.selectedId = 37;
   persist();
   render();
 });
