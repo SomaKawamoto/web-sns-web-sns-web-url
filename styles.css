@@ -191,6 +191,13 @@ button {
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
 }
 
+.summit-badge svg {
+  display: block;
+  width: 76%;
+  height: 76%;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.14));
+}
+
 .brand-mark img,
 .summit-badge img {
   display: block;
