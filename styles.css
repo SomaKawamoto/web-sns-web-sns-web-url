@@ -553,6 +553,7 @@ select:focus {
     align-items: start;
   }
 
+  .progress-panel,
   .controls-panel {
     grid-column: 1;
     position: static;
@@ -590,10 +591,6 @@ select:focus {
 
   .layout {
     grid-template-columns: 1fr;
-  }
-
-  .progress-panel {
-    position: static;
   }
 
   .mountain-list {
