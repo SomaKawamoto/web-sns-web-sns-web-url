@@ -128,6 +128,8 @@ const state = {
 };
 
 let japanGeoJson = null;
+const brandLogo = new Image();
+brandLogo.src = "./assets/brand-logo-white-transparent.png";
 
 const els = {
   climbedCount: document.querySelector("#climbedCount"),
@@ -154,6 +156,8 @@ const els = {
   shareButton: document.querySelector("#shareButton"),
   canvas: document.querySelector("#shareCanvas")
 };
+
+brandLogo.addEventListener("load", drawShareImage);
 
 const mapExtent = {
   minLng: 129.35,
@@ -390,40 +394,10 @@ function roundedRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function drawMountainLogo(ctx, x, y, scale = 1, color = "#fffaf0") {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(scale, scale);
-
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(4, 40);
-  ctx.lineTo(20, 13);
-  ctx.lineTo(28, 24);
-  ctx.lineTo(37, 5);
-  ctx.lineTo(60, 40);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#1f2923";
-  ctx.beginPath();
-  ctx.moveTo(20, 13);
-  ctx.lineTo(17, 27);
-  ctx.lineTo(24, 20);
-  ctx.lineTo(28, 30);
-  ctx.lineTo(37, 5);
-  ctx.lineTo(41, 23);
-  ctx.lineTo(47, 16);
-  ctx.lineTo(55, 29);
-  ctx.lineTo(47, 24);
-  ctx.lineTo(42, 31);
-  ctx.lineTo(37, 18);
-  ctx.lineTo(30, 36);
-  ctx.lineTo(23, 26);
-  ctx.lineTo(16, 33);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
+function drawBrandLogo(ctx, x, y, width) {
+  if (!brandLogo.complete || !brandLogo.naturalWidth) return;
+  const height = width * (brandLogo.naturalHeight / brandLogo.naturalWidth);
+  ctx.drawImage(brandLogo, x, y, width, height);
 }
 
 function drawPosterTexture(ctx) {
@@ -496,7 +470,7 @@ function drawShareImage() {
   roundedRect(ctx, 82, 82, 916, 916, 12);
   ctx.stroke();
 
-  drawMountainLogo(ctx, 158, 116, 2.25, "#f3ecdc");
+  drawBrandLogo(ctx, 138, 112, 190);
 
   ctx.fillStyle = "#f3ecdc";
   ctx.font = "900 98px system-ui, sans-serif";
@@ -533,7 +507,7 @@ function drawShareImage() {
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  drawMountainLogo(ctx, 112, 700, 0.8, "#f3ecdc");
+  drawBrandLogo(ctx, 112, 708, 64);
   drawCompass(ctx, 926, 758, 58);
 
   ctx.strokeStyle = "rgba(255,250,240,0.26)";
@@ -552,7 +526,7 @@ function drawShareImage() {
   ctx.font = "800 30px system-ui, sans-serif";
   ctx.fillText("#日本百名山  #登山", 360, 950);
 
-  drawMountainLogo(ctx, 360, 976, 0.52, "#f3ecdc");
+  drawBrandLogo(ctx, 360, 978, 42);
   ctx.font = "700 26px system-ui, sans-serif";
   ctx.fillText("Hyakumeizan Badge", 402, 1002);
 }
