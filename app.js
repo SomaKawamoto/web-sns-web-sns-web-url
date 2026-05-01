@@ -430,8 +430,9 @@ function selectMountain(id, shouldScroll) {
 
 function drawShareMap(ctx, box) {
   ctx.save();
+  const scale = Math.min(box.w / 420, box.h / 520);
   ctx.translate(box.x, box.y);
-  ctx.scale(box.w / 420, box.h / 520);
+  ctx.scale(scale, scale);
 
   if (japanGeoJson) {
     ctx.fillStyle = "#d9ded1";
@@ -502,18 +503,12 @@ function drawBrandLogo(ctx, x, y, width) {
   ctx.drawImage(brandLogo, x, y, width, height);
 }
 
+function drawBrandLogoCentered(ctx, centerX, y, width) {
+  drawBrandLogo(ctx, centerX - width / 2, y, width);
+}
+
 function drawPosterTexture(ctx) {
   ctx.save();
-  ctx.strokeStyle = "rgba(243,236,220,0.055)";
-  ctx.lineWidth = 1.5;
-  for (let y = 96; y < 860; y += 36) {
-    ctx.beginPath();
-    ctx.moveTo(98, y);
-    ctx.bezierCurveTo(280, y - 34, 450, y + 38, 642, y - 8);
-    ctx.bezierCurveTo(790, y - 42, 884, y + 16, 980, y - 12);
-    ctx.stroke();
-  }
-
   ctx.fillStyle = "rgba(243,236,220,0.035)";
   for (let i = 0; i < 620; i += 1) {
     const x = 72 + ((i * 73) % 936);
@@ -521,28 +516,6 @@ function drawPosterTexture(ctx) {
     const size = 0.7 + (i % 3) * 0.35;
     ctx.fillRect(x, y, size, size);
   }
-  ctx.restore();
-}
-
-function drawMountainMark(ctx, x, y, width) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.fillStyle = "#f3ecdc";
-  ctx.beginPath();
-  ctx.moveTo(width * 0.04, width * 0.46);
-  ctx.lineTo(width * 0.28, width * 0.2);
-  ctx.lineTo(width * 0.36, width * 0.32);
-  ctx.lineTo(width * 0.5, 0);
-  ctx.lineTo(width * 0.7, width * 0.24);
-  ctx.lineTo(width * 0.8, width * 0.14);
-  ctx.lineTo(width * 0.98, width * 0.46);
-  ctx.lineTo(width * 0.78, width * 0.34);
-  ctx.lineTo(width * 0.68, width * 0.46);
-  ctx.lineTo(width * 0.5, width * 0.2);
-  ctx.lineTo(width * 0.4, width * 0.5);
-  ctx.lineTo(width * 0.3, width * 0.34);
-  ctx.closePath();
-  ctx.fill();
   ctx.restore();
 }
 
@@ -614,56 +587,52 @@ function drawShareImage() {
   roundedRect(ctx, 32, 32, 1016, 1016, 26);
   ctx.fill();
   drawPosterTexture(ctx);
+  drawShareMap(ctx, { x: 118, y: 18, w: 910, h: 1080 });
 
-  drawMountainMark(ctx, 382, 104, 188);
+  drawBrandLogoCentered(ctx, 312, 76, 160);
 
   ctx.strokeStyle = "rgba(255,250,240,0.78)";
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(58, 160);
-  ctx.lineTo(330, 160);
-  ctx.moveTo(590, 160);
-  ctx.lineTo(710, 160);
+  ctx.moveTo(58, 158);
+  ctx.lineTo(218, 158);
+  ctx.moveTo(406, 158);
+  ctx.lineTo(566, 158);
   ctx.stroke();
 
   ctx.fillStyle = "#f3ecdc";
-  ctx.font = "900 128px system-ui, sans-serif";
-  ctx.fillText("日本百名山", 64, 318);
+  ctx.font = "900 98px system-ui, sans-serif";
+  ctx.fillText("日本百名山", 64, 290);
 
   ctx.strokeStyle = "rgba(255,250,240,0.78)";
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(58, 358);
-  ctx.lineTo(348, 358);
-  ctx.moveTo(432, 358);
-  ctx.lineTo(710, 358);
+  ctx.moveTo(58, 338);
+  ctx.lineTo(566, 338);
   ctx.stroke();
 
   ctx.fillStyle = "#d94d2b";
-  ctx.font = "900 252px system-ui, sans-serif";
+  ctx.font = "900 150px system-ui, sans-serif";
   const countText = String(count);
   const countX = 58;
   const countWidth = ctx.measureText(countText).width;
-  ctx.fillText(countText, countX, 640);
+  ctx.fillText(countText, countX, 500);
 
-  ctx.font = "900 86px system-ui, sans-serif";
+  ctx.font = "900 46px system-ui, sans-serif";
   ctx.fillStyle = "#f3ecdc";
-  ctx.fillText("/ 100", countX + countWidth + 28, 612);
+  ctx.fillText("/ 100", countX + countWidth + 14, 488);
 
   ctx.fillStyle = "#d94d2b";
-  roundedRect(ctx, 62, 672, 420, 92, 0);
+  roundedRect(ctx, 62, 540, 284, 58, 0);
   ctx.fill();
   ctx.fillStyle = "#fffaf0";
-  ctx.font = "900 58px system-ui, sans-serif";
-  ctx.fillText("登頂済み", 144, 736);
-
-  drawShareMap(ctx, { x: 490, y: 84, w: 522, h: 746 });
-
-  drawShareLegend(ctx, 744, 842);
+  ctx.font = "900 38px system-ui, sans-serif";
+  ctx.fillText("登頂済み", 112, 581);
 
   ctx.fillStyle = "#f3ecdc";
-  ctx.font = "900 38px system-ui, sans-serif";
-  ctx.fillText("#日本百名山  #登山", 328, 992);
+  ctx.font = "900 30px system-ui, sans-serif";
+  const hashtagText = "#日本百名山  #登山";
+  ctx.fillText(hashtagText, 540 - ctx.measureText(hashtagText).width / 2, 992);
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
