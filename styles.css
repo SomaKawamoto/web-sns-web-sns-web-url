@@ -717,6 +717,10 @@ select:focus {
 
 .primary-button,
 .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-height: 46px;
   border-radius: 8px;
   font-weight: 900;
@@ -729,7 +733,10 @@ select:focus {
 }
 
 .map-share-button {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   min-height: 58px;
   margin: 22px 0 0;
@@ -740,6 +747,13 @@ select:focus {
   font-size: 18px;
   font-weight: 800;
   box-shadow: var(--soft-shadow);
+}
+
+.share-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .secondary-button {
