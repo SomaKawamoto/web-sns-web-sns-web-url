@@ -166,16 +166,26 @@ const mapExtent = {
   maxLat: 45.65
 };
 
-function project({ lat, lng }, box = { x: 42, y: 42, w: 336, h: 430 }) {
-  const { minLng, maxLng, minLat, maxLat } = mapExtent;
+const mainMapBox = { x: 38, y: 36, w: 346, h: 442 };
+const okinawaExtent = {
+  minLng: 126.5,
+  maxLng: 129.0,
+  minLat: 25.45,
+  maxLat: 27.55
+};
+const okinawaInsetBox = { x: 328, y: 388, w: 92, h: 78 };
+const okinawaDividerRight = 418;
+
+function project({ lat, lng }, box = { x: 42, y: 42, w: 336, h: 430 }, extent = mapExtent) {
+  const { minLng, maxLng, minLat, maxLat } = extent;
   return {
     x: box.x + ((lng - minLng) / (maxLng - minLng)) * box.w,
     y: box.y + ((maxLat - lat) / (maxLat - minLat)) * box.h
   };
 }
 
-function projectCoord(coord, box) {
-  return project({ lng: coord[0], lat: coord[1] }, box);
+function projectCoord(coord, box, extent) {
+  return project({ lng: coord[0], lat: coord[1] }, box, extent);
 }
 
 function getTaunt(count) {
@@ -227,22 +237,48 @@ async function loadJapanMap() {
   japanGeoJson = await response.json();
 }
 
-function ringToPath(ring, box) {
+function ringToPath(ring, box, extent = mapExtent) {
   return ring
     .map((coord, index) => {
-      const point = projectCoord(coord, box);
+      const point = projectCoord(coord, box, extent);
       return `${index === 0 ? "M" : "L"}${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
     })
     .join(" ") + " Z";
 }
 
-function polygonToPath(polygon, box) {
-  return polygon.map((ring) => ringToPath(ring, box)).join(" ");
+function polygonToPath(polygon, box, extent) {
+  return polygon.map((ring) => ringToPath(ring, box, extent)).join(" ");
 }
 
-function featureToPath(feature, box) {
+function getPolygonBounds(polygon) {
+  const bounds = { minLng: Infinity, maxLng: -Infinity, minLat: Infinity, maxLat: -Infinity };
+  polygon.flat(1).forEach(([lng, lat]) => {
+    bounds.minLng = Math.min(bounds.minLng, lng);
+    bounds.maxLng = Math.max(bounds.maxLng, lng);
+    bounds.minLat = Math.min(bounds.minLat, lat);
+    bounds.maxLat = Math.max(bounds.maxLat, lat);
+  });
+  return bounds;
+}
+
+function intersectsExtent(bounds, extent) {
+  return bounds.maxLng >= extent.minLng && bounds.minLng <= extent.maxLng && bounds.maxLat >= extent.minLat && bounds.minLat <= extent.maxLat;
+}
+
+function featureToPath(feature, box, extent = mapExtent, polygonFilter = () => true) {
   const polygons = feature.geometry.type === "Polygon" ? [feature.geometry.coordinates] : feature.geometry.coordinates;
-  return polygons.map((polygon) => polygonToPath(polygon, box)).join(" ");
+  return polygons
+    .filter((polygon) => polygonFilter(polygon))
+    .map((polygon) => polygonToPath(polygon, box, extent))
+    .join(" ");
+}
+
+function getOkinawaFeature() {
+  return japanGeoJson?.features.find((feature) => feature.properties?.nam_ja === "沖縄県");
+}
+
+function isOkinawaInsetPolygon(polygon) {
+  return intersectsExtent(getPolygonBounds(polygon), okinawaExtent);
 }
 
 function drawJapanSvg() {
@@ -252,8 +288,24 @@ function drawJapanSvg() {
   for (const feature of japanGeoJson.features) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("class", "land");
-    path.setAttribute("d", featureToPath(feature, { x: 38, y: 36, w: 346, h: 442 }));
+    path.setAttribute("d", featureToPath(feature, mainMapBox));
     els.japanMapPaths.append(path);
+  }
+
+  const insetDivider = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  insetDivider.setAttribute("class", "okinawa-inset-divider");
+  insetDivider.setAttribute(
+    "d",
+    `M${okinawaInsetBox.x - 10} ${okinawaInsetBox.y - 12}H${okinawaDividerRight}M${okinawaInsetBox.x - 10} ${okinawaInsetBox.y - 12}V${okinawaInsetBox.y + okinawaInsetBox.h + 12}`
+  );
+  els.japanMapPaths.append(insetDivider);
+
+  const okinawaFeature = getOkinawaFeature();
+  if (okinawaFeature) {
+    const okinawaPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    okinawaPath.setAttribute("class", "land okinawa-land");
+    okinawaPath.setAttribute("d", featureToPath(okinawaFeature, okinawaInsetBox, okinawaExtent, isOkinawaInsetPolygon));
+    els.japanMapPaths.append(okinawaPath);
   }
 }
 
@@ -363,9 +415,27 @@ function drawShareMap(ctx, box) {
     ctx.strokeStyle = "rgba(44,85,65,0.30)";
     ctx.lineWidth = 1.6;
     for (const feature of japanGeoJson.features) {
-      const featurePath = new Path2D(featureToPath(feature, { x: 38, y: 36, w: 346, h: 442 }));
+      const featurePath = new Path2D(featureToPath(feature, mainMapBox));
       ctx.fill(featurePath);
       ctx.stroke(featurePath);
+    }
+
+    ctx.strokeStyle = "rgba(44,85,65,0.26)";
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(okinawaInsetBox.x - 10, okinawaInsetBox.y - 12);
+    ctx.lineTo(okinawaDividerRight, okinawaInsetBox.y - 12);
+    ctx.moveTo(okinawaInsetBox.x - 10, okinawaInsetBox.y - 12);
+    ctx.lineTo(okinawaInsetBox.x - 10, okinawaInsetBox.y + okinawaInsetBox.h + 12);
+    ctx.stroke();
+
+    const okinawaFeature = getOkinawaFeature();
+    if (okinawaFeature) {
+      const okinawaPath = new Path2D(featureToPath(okinawaFeature, okinawaInsetBox, okinawaExtent, isOkinawaInsetPolygon));
+      ctx.fillStyle = "#d9ded1";
+      ctx.strokeStyle = "rgba(44,85,65,0.34)";
+      ctx.fill(okinawaPath);
+      ctx.stroke(okinawaPath);
     }
   }
 
