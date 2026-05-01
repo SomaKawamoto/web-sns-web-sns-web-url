@@ -145,8 +145,6 @@ const els = {
   listClearButton: document.querySelector("#listClearButton"),
   menuButton: document.querySelector("#menuButton"),
   headerMenu: document.querySelector("#headerMenu"),
-  menuShareButton: document.querySelector("#menuShareButton"),
-  menuClearButton: document.querySelector("#menuClearButton"),
   openShareButton: document.querySelector("#openShareButton"),
   closeShareButton: document.querySelector("#closeShareButton"),
   shareModal: document.querySelector("#shareModal"),
@@ -497,6 +495,17 @@ function roundedRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
+function notchedLabel(ctx, x, y, w, h, notch) {
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w - notch, y + h / 2);
+  ctx.lineTo(x + w, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.lineTo(x + notch, y + h / 2);
+  ctx.closePath();
+}
+
 function drawBrandLogo(ctx, x, y, width) {
   if (!brandLogo.complete || !brandLogo.naturalWidth) return;
   const height = width * (brandLogo.naturalHeight / brandLogo.naturalWidth);
@@ -623,11 +632,12 @@ function drawShareImage() {
   ctx.fillText("/ 100", countX + countWidth + 14, 488);
 
   ctx.fillStyle = "#d94d2b";
-  roundedRect(ctx, 62, 540, 284, 58, 0);
+  notchedLabel(ctx, 62, 540, 296, 58, 22);
   ctx.fill();
   ctx.fillStyle = "#fffaf0";
   ctx.font = "900 38px system-ui, sans-serif";
-  ctx.fillText("登頂済み", 112, 581);
+  const climbedLabelText = "登頂済み";
+  ctx.fillText(climbedLabelText, 210 - ctx.measureText(climbedLabelText).width / 2, 581);
 
   ctx.fillStyle = "#f3ecdc";
   ctx.font = "900 30px system-ui, sans-serif";
@@ -728,16 +738,6 @@ els.listClearButton.addEventListener("click", clearClimbed);
 
 els.menuButton.addEventListener("click", () => {
   setHeaderMenuOpen(els.headerMenu.hidden);
-});
-
-els.menuShareButton.addEventListener("click", () => {
-  setHeaderMenuOpen(false);
-  openSharePanel();
-});
-
-els.menuClearButton.addEventListener("click", () => {
-  setHeaderMenuOpen(false);
-  clearClimbed();
 });
 
 els.openShareButton.addEventListener("click", openSharePanel);
