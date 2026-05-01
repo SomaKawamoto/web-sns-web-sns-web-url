@@ -446,7 +446,7 @@ h2 {
   vector-effect: non-scaling-stroke;
 }
 
-.okinawa-inset-divider {
+.map-inset-divider {
   fill: none;
   stroke: rgba(35, 38, 34, 0.18);
   stroke-width: 1.2;
@@ -454,7 +454,7 @@ h2 {
   vector-effect: non-scaling-stroke;
 }
 
-.okinawa-land {
+.inset-land {
   stroke: rgba(35, 38, 34, 0.28);
 }
 

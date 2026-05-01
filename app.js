@@ -175,6 +175,7 @@ const okinawaExtent = {
 };
 const okinawaInsetBox = { x: 328, y: 388, w: 92, h: 78 };
 const okinawaDividerRight = 418;
+const insetPolygonAreaThreshold = 1;
 
 function project({ lat, lng }, box = { x: 42, y: 42, w: 336, h: 430 }, extent = mapExtent) {
   const { minLng, maxLng, minLat, maxLat } = extent;
@@ -261,8 +262,25 @@ function getPolygonBounds(polygon) {
   return bounds;
 }
 
+function getPolygonScreenArea(polygon, box, extent) {
+  const points = polygon[0].map((coord) => projectCoord(coord, box, extent));
+  let area = 0;
+  for (let index = 0, prev = points.length - 1; index < points.length; prev = index, index += 1) {
+    area += (points[prev].x + points[index].x) * (points[prev].y - points[index].y);
+  }
+  return Math.abs(area / 2);
+}
+
 function intersectsExtent(bounds, extent) {
   return bounds.maxLng >= extent.minLng && bounds.minLng <= extent.maxLng && bounds.maxLat >= extent.minLat && bounds.minLat <= extent.maxLat;
+}
+
+function isMainMapPolygon(polygon) {
+  return intersectsExtent(getPolygonBounds(polygon), mapExtent) && getPolygonScreenArea(polygon, mainMapBox, mapExtent) >= 1;
+}
+
+function isInsetPolygon(polygon, box, extent) {
+  return intersectsExtent(getPolygonBounds(polygon), extent) && getPolygonScreenArea(polygon, box, extent) >= insetPolygonAreaThreshold;
 }
 
 function featureToPath(feature, box, extent = mapExtent, polygonFilter = () => true) {
@@ -273,12 +291,30 @@ function featureToPath(feature, box, extent = mapExtent, polygonFilter = () => t
     .join(" ");
 }
 
-function getOkinawaFeature() {
-  return japanGeoJson?.features.find((feature) => feature.properties?.nam_ja === "沖縄県");
+function getPrefectureFeature(name) {
+  return japanGeoJson?.features.find((feature) => feature.properties?.nam_ja === name);
 }
 
 function isOkinawaInsetPolygon(polygon) {
-  return intersectsExtent(getPolygonBounds(polygon), okinawaExtent);
+  return isInsetPolygon(polygon, okinawaInsetBox, okinawaExtent);
+}
+
+function drawSvgInset(prefectureName, box, extent, polygonFilter, dividerRight = box.x + box.w + 10) {
+  const insetDivider = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  insetDivider.setAttribute("class", "map-inset-divider");
+  insetDivider.setAttribute("d", `M${box.x - 10} ${box.y - 12}H${dividerRight}M${box.x - 10} ${box.y - 12}V${box.y + box.h + 12}`);
+  els.japanMapPaths.append(insetDivider);
+
+  const feature = getPrefectureFeature(prefectureName);
+  if (!feature) return;
+
+  const pathData = featureToPath(feature, box, extent, polygonFilter);
+  if (!pathData) return;
+
+  const insetPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  insetPath.setAttribute("class", "land inset-land");
+  insetPath.setAttribute("d", pathData);
+  els.japanMapPaths.append(insetPath);
 }
 
 function drawJapanSvg() {
@@ -286,27 +322,15 @@ function drawJapanSvg() {
   els.japanMapPaths.innerHTML = "";
 
   for (const feature of japanGeoJson.features) {
+    const pathData = featureToPath(feature, mainMapBox, mapExtent, isMainMapPolygon);
+    if (!pathData) continue;
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("class", "land");
-    path.setAttribute("d", featureToPath(feature, mainMapBox));
+    path.setAttribute("d", pathData);
     els.japanMapPaths.append(path);
   }
 
-  const insetDivider = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  insetDivider.setAttribute("class", "okinawa-inset-divider");
-  insetDivider.setAttribute(
-    "d",
-    `M${okinawaInsetBox.x - 10} ${okinawaInsetBox.y - 12}H${okinawaDividerRight}M${okinawaInsetBox.x - 10} ${okinawaInsetBox.y - 12}V${okinawaInsetBox.y + okinawaInsetBox.h + 12}`
-  );
-  els.japanMapPaths.append(insetDivider);
-
-  const okinawaFeature = getOkinawaFeature();
-  if (okinawaFeature) {
-    const okinawaPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    okinawaPath.setAttribute("class", "land okinawa-land");
-    okinawaPath.setAttribute("d", featureToPath(okinawaFeature, okinawaInsetBox, okinawaExtent, isOkinawaInsetPolygon));
-    els.japanMapPaths.append(okinawaPath);
-  }
+  drawSvgInset("沖縄県", okinawaInsetBox, okinawaExtent, isOkinawaInsetPolygon, okinawaDividerRight);
 }
 
 function getFilteredMountains() {
@@ -415,28 +439,14 @@ function drawShareMap(ctx, box) {
     ctx.strokeStyle = "rgba(44,85,65,0.30)";
     ctx.lineWidth = 1.6;
     for (const feature of japanGeoJson.features) {
-      const featurePath = new Path2D(featureToPath(feature, mainMapBox));
+      const pathData = featureToPath(feature, mainMapBox, mapExtent, isMainMapPolygon);
+      if (!pathData) continue;
+      const featurePath = new Path2D(pathData);
       ctx.fill(featurePath);
       ctx.stroke(featurePath);
     }
 
-    ctx.strokeStyle = "rgba(44,85,65,0.26)";
-    ctx.lineWidth = 1.8;
-    ctx.beginPath();
-    ctx.moveTo(okinawaInsetBox.x - 10, okinawaInsetBox.y - 12);
-    ctx.lineTo(okinawaDividerRight, okinawaInsetBox.y - 12);
-    ctx.moveTo(okinawaInsetBox.x - 10, okinawaInsetBox.y - 12);
-    ctx.lineTo(okinawaInsetBox.x - 10, okinawaInsetBox.y + okinawaInsetBox.h + 12);
-    ctx.stroke();
-
-    const okinawaFeature = getOkinawaFeature();
-    if (okinawaFeature) {
-      const okinawaPath = new Path2D(featureToPath(okinawaFeature, okinawaInsetBox, okinawaExtent, isOkinawaInsetPolygon));
-      ctx.fillStyle = "#d9ded1";
-      ctx.strokeStyle = "rgba(44,85,65,0.34)";
-      ctx.fill(okinawaPath);
-      ctx.stroke(okinawaPath);
-    }
+    drawCanvasInset(ctx, "沖縄県", okinawaInsetBox, okinawaExtent, isOkinawaInsetPolygon, okinawaDividerRight);
   }
 
   for (const mountain of mountains) {
@@ -452,6 +462,29 @@ function drawShareMap(ctx, box) {
   }
 
   ctx.restore();
+}
+
+function drawCanvasInset(ctx, prefectureName, box, extent, polygonFilter, dividerRight = box.x + box.w + 10) {
+  ctx.strokeStyle = "rgba(44,85,65,0.26)";
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(box.x - 10, box.y - 12);
+  ctx.lineTo(dividerRight, box.y - 12);
+  ctx.moveTo(box.x - 10, box.y - 12);
+  ctx.lineTo(box.x - 10, box.y + box.h + 12);
+  ctx.stroke();
+
+  const feature = getPrefectureFeature(prefectureName);
+  if (!feature) return;
+
+  const pathData = featureToPath(feature, box, extent, polygonFilter);
+  if (!pathData) return;
+
+  const insetPath = new Path2D(pathData);
+  ctx.fillStyle = "#d9ded1";
+  ctx.strokeStyle = "rgba(44,85,65,0.34)";
+  ctx.fill(insetPath);
+  ctx.stroke(insetPath);
 }
 
 function roundedRect(ctx, x, y, w, h, r) {
