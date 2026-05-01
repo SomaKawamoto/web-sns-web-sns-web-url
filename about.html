@@ -23,7 +23,16 @@
             <h1>日本百名山チェック</h1>
           </div>
         </a>
-        <a class="header-link" href="./index.html">チェックへ戻る</a>
+        <div class="header-menu">
+          <button class="menu-button" id="aboutMenuButton" type="button" aria-label="メニューを開く" aria-expanded="false" aria-controls="aboutHeaderMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <div class="menu-popover" id="aboutHeaderMenu" hidden>
+            <a href="./index.html">チェックへ戻る</a>
+          </div>
+        </div>
       </header>
 
       <main class="content-page" aria-labelledby="aboutTitle">
@@ -56,5 +65,31 @@
         <a class="primary-link" href="./index.html">チェックリストを開く</a>
       </main>
     </div>
+    <script>
+      const aboutMenuButton = document.querySelector("#aboutMenuButton");
+      const aboutHeaderMenu = document.querySelector("#aboutHeaderMenu");
+
+      function setAboutMenuOpen(open) {
+        aboutHeaderMenu.hidden = !open;
+        aboutMenuButton.setAttribute("aria-expanded", String(open));
+      }
+
+      aboutMenuButton.addEventListener("click", () => {
+        setAboutMenuOpen(aboutHeaderMenu.hidden);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !aboutHeaderMenu.hidden) {
+          setAboutMenuOpen(false);
+          aboutMenuButton.focus({ preventScroll: true });
+        }
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!aboutHeaderMenu.hidden && !event.target.closest(".header-menu")) {
+          setAboutMenuOpen(false);
+        }
+      });
+    </script>
   </body>
 </html>
