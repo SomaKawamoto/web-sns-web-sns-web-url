@@ -151,7 +151,6 @@ const els = {
   closeShareButton: document.querySelector("#closeShareButton"),
   shareModal: document.querySelector("#shareModal"),
   sharePanel: document.querySelector("#sharePanel"),
-  generateButton: document.querySelector("#generateButton"),
   downloadButton: document.querySelector("#downloadButton"),
   shareButton: document.querySelector("#shareButton"),
   canvas: document.querySelector("#shareCanvas")
@@ -465,7 +464,7 @@ function drawShareMap(ctx, box) {
 }
 
 function drawCanvasInset(ctx, prefectureName, box, extent, polygonFilter, dividerRight = box.x + box.w + 10) {
-  ctx.strokeStyle = "rgba(44,85,65,0.26)";
+  ctx.strokeStyle = "rgba(255,250,240,0.46)";
   ctx.lineWidth = 1.8;
   ctx.beginPath();
   ctx.moveTo(box.x - 10, box.y - 12);
@@ -481,8 +480,8 @@ function drawCanvasInset(ctx, prefectureName, box, extent, polygonFilter, divide
   if (!pathData) return;
 
   const insetPath = new Path2D(pathData);
-  ctx.fillStyle = "#d9ded1";
-  ctx.strokeStyle = "rgba(44,85,65,0.34)";
+  ctx.fillStyle = "#87947a";
+  ctx.strokeStyle = "rgba(255,250,240,0.74)";
   ctx.fill(insetPath);
   ctx.stroke(insetPath);
 }
@@ -525,6 +524,55 @@ function drawPosterTexture(ctx) {
   ctx.restore();
 }
 
+function drawMountainMark(ctx, x, y, width) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "#f3ecdc";
+  ctx.beginPath();
+  ctx.moveTo(width * 0.04, width * 0.46);
+  ctx.lineTo(width * 0.28, width * 0.2);
+  ctx.lineTo(width * 0.36, width * 0.32);
+  ctx.lineTo(width * 0.5, 0);
+  ctx.lineTo(width * 0.7, width * 0.24);
+  ctx.lineTo(width * 0.8, width * 0.14);
+  ctx.lineTo(width * 0.98, width * 0.46);
+  ctx.lineTo(width * 0.78, width * 0.34);
+  ctx.lineTo(width * 0.68, width * 0.46);
+  ctx.lineTo(width * 0.5, width * 0.2);
+  ctx.lineTo(width * 0.4, width * 0.5);
+  ctx.lineTo(width * 0.3, width * 0.34);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawShareLegend(ctx, x, y) {
+  ctx.save();
+  ctx.lineWidth = 4;
+
+  ctx.beginPath();
+  ctx.arc(x, y, 16, 0, Math.PI * 2);
+  ctx.fillStyle = "#d94d2b";
+  ctx.fill();
+  ctx.strokeStyle = "#fffaf0";
+  ctx.stroke();
+
+  ctx.fillStyle = "#f3ecdc";
+  ctx.font = "900 34px system-ui, sans-serif";
+  ctx.fillText("登頂済み", x + 38, y + 12);
+
+  ctx.beginPath();
+  ctx.arc(x, y + 58, 16, 0, Math.PI * 2);
+  ctx.fillStyle = "#87947a";
+  ctx.fill();
+  ctx.strokeStyle = "#fffaf0";
+  ctx.stroke();
+
+  ctx.fillStyle = "#f3ecdc";
+  ctx.fillText("未登頂", x + 38, y + 70);
+  ctx.restore();
+}
+
 function drawCompass(ctx, x, y, size) {
   ctx.save();
   ctx.translate(x, y);
@@ -553,85 +601,69 @@ function drawCompass(ctx, x, y, size) {
 function drawShareImage() {
   const ctx = els.canvas.getContext("2d");
   const count = state.climbed.size;
-  const rate = Math.round((count / mountains.length) * 100);
 
   ctx.clearRect(0, 0, 1080, 1080);
-  ctx.fillStyle = "#1f2923";
+  ctx.fillStyle = "#082f22";
   ctx.fillRect(0, 0, 1080, 1080);
 
   ctx.fillStyle = "#f3ecdc";
-  roundedRect(ctx, 44, 44, 992, 992, 20);
+  roundedRect(ctx, 18, 18, 1044, 1044, 34);
   ctx.fill();
 
-  ctx.fillStyle = "#1f2923";
-  roundedRect(ctx, 62, 62, 956, 956, 14);
+  ctx.fillStyle = "#082f22";
+  roundedRect(ctx, 32, 32, 1016, 1016, 26);
   ctx.fill();
   drawPosterTexture(ctx);
 
-  ctx.strokeStyle = "rgba(255,250,240,0.68)";
+  drawMountainMark(ctx, 382, 104, 188);
+
+  ctx.strokeStyle = "rgba(255,250,240,0.78)";
   ctx.lineWidth = 3;
-  roundedRect(ctx, 82, 82, 916, 916, 12);
+  ctx.beginPath();
+  ctx.moveTo(58, 160);
+  ctx.lineTo(330, 160);
+  ctx.moveTo(590, 160);
+  ctx.lineTo(710, 160);
   ctx.stroke();
 
-  drawBrandLogo(ctx, 138, 112, 190);
-
   ctx.fillStyle = "#f3ecdc";
-  ctx.font = "900 98px system-ui, sans-serif";
-  ctx.fillText("日本百名山", 106, 288);
+  ctx.font = "900 128px system-ui, sans-serif";
+  ctx.fillText("日本百名山", 64, 318);
+
+  ctx.strokeStyle = "rgba(255,250,240,0.78)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(58, 358);
+  ctx.lineTo(348, 358);
+  ctx.moveTo(432, 358);
+  ctx.lineTo(710, 358);
+  ctx.stroke();
 
   ctx.fillStyle = "#d94d2b";
-  ctx.font = "900 182px system-ui, sans-serif";
+  ctx.font = "900 252px system-ui, sans-serif";
   const countText = String(count);
-  const countX = 106;
+  const countX = 58;
   const countWidth = ctx.measureText(countText).width;
-  ctx.fillText(countText, countX, 462);
+  ctx.fillText(countText, countX, 640);
 
   ctx.font = "900 86px system-ui, sans-serif";
   ctx.fillStyle = "#f3ecdc";
-  ctx.fillText("/ 100", countX + countWidth + 24, 445);
+  ctx.fillText("/ 100", countX + countWidth + 28, 612);
 
   ctx.fillStyle = "#d94d2b";
-  roundedRect(ctx, 112, 494, 266, 62, 7);
+  roundedRect(ctx, 62, 672, 420, 92, 0);
   ctx.fill();
   ctx.fillStyle = "#fffaf0";
-  ctx.font = "900 34px system-ui, sans-serif";
-  ctx.fillText("登頂済み", 145, 535);
+  ctx.font = "900 58px system-ui, sans-serif";
+  ctx.fillText("登頂済み", 144, 736);
 
-  drawShareMap(ctx, { x: 392, y: 126, w: 620, h: 730 });
+  drawShareMap(ctx, { x: 490, y: 84, w: 522, h: 746 });
+
+  drawShareLegend(ctx, 744, 842);
 
   ctx.fillStyle = "#f3ecdc";
   ctx.font = "900 38px system-ui, sans-serif";
-  wrapText(ctx, getTaunt(count), 112, 650, 420, 54);
-
-  ctx.beginPath();
-  ctx.moveTo(112, 588);
-  ctx.lineTo(386, 588);
-  ctx.strokeStyle = "rgba(255,250,240,0.58)";
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
-  drawBrandLogo(ctx, 112, 708, 64);
-  drawCompass(ctx, 926, 758, 58);
-
-  ctx.strokeStyle = "rgba(255,250,240,0.26)";
-  ctx.lineWidth = 2;
-  roundedRect(ctx, 734, 772, 226, 108, 0);
-  ctx.stroke();
-
-  ctx.strokeStyle = "rgba(255,250,240,0.28)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(112, 905);
-  ctx.lineTo(968, 905);
-  ctx.stroke();
-
-  ctx.fillStyle = "#f3ecdc";
-  ctx.font = "800 30px system-ui, sans-serif";
-  ctx.fillText("#日本百名山  #登山", 360, 950);
-
-  drawBrandLogo(ctx, 360, 978, 42);
-  ctx.font = "700 26px system-ui, sans-serif";
-  ctx.fillText("Hyakumeizan Badge", 402, 1002);
+  ctx.fillText("#日本百名山  #登山", 328, 992);
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -761,7 +793,6 @@ document.addEventListener("click", (event) => {
     setHeaderMenuOpen(false);
   }
 });
-els.generateButton.addEventListener("click", drawShareImage);
 els.downloadButton.addEventListener("click", downloadCanvas);
 els.shareButton.addEventListener("click", () => {
   shareCanvas().catch(() => downloadCanvas());
